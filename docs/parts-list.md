@@ -1,23 +1,39 @@
 # Parts list
 
-Draft for a **Raspberry Pi Zero 2 W** build. Prices are not filled in yet; check current listings before buying.
+Draft for a **Raspberry Pi Zero 2 W** build. Prices were checked on 2026-10-24.
+- "est." marks an estimate that hasn't been checked against a live listing.
+- USD prices are converted at about 1.4 CAD per USD, before shipping and duty.
+
+## To buy
 
 | # | Part | Purpose | Candidate | Price (CAD) | Link | Notes |
 |---|---|---|---|---|---|---|
-| 1 | Raspberry Pi | Logger computer | Raspberry Pi Zero 2 W (owned, no header) | owned | | |
-| 1a | GPIO header | Connects the HAT to the Pi | 2×20 male pin header, 2.54 mm, soldered on (owner solders) | | | Chosen over a hammer header because it holds up better to vibration |
-| 2 | microSD card | OS (read-only root) + log partition | 64 GB card (owned) | owned | | A high-endurance card is preferred; the read-only root limits wear either way |
-| 3 | CAN HAT | HS-CAN interface | **PiCAN FD Zero with 1A SMPS** (SK Pang / Copperhill) | | [Copperhill](https://copperhilltech.com/pican-fd-zero-can-fd-hat-for-raspberry-pi-zero-with-1a-smps/) | MCP2518FD (mainline `mcp251xfd` driver), works on classic 500 kbit/s CAN. Onboard 6–20 V SMPS powers the Pi from 12 V. Single channel. |
-| 3a | CAN HAT (budget alternative) | HS-CAN interface | Waveshare RS485 CAN HAT | | [Waveshare wiki](https://www.waveshare.com/wiki/RS485_CAN_HAT) | MCP2515 + 65HVD230, Zero-sized (65 × 30 mm). No 12 V input, so it needs a separate 12 V → 5 V supply. |
-| 4 | OBD-II cable | OBD-II plug to HAT screw terminals | OBD-II male to open wires | | | Pins 6/14 HS-CAN, 5 signal ground. Pin 16 not used for power. MS-CAN (3/11) not wired in this build. |
-| 5 | Switched power | +12 V only while the ignition is on | Add-a-circuit fuse tap + inline fuse | | | Match the fuse type in the Explorer's panel. Pick a fuse that is live only in RUN (check with a multimeter). Ground to a chassis point. |
-| 5a | Ignition-off sense | Tells the Pi the 12 V feed dropped | Optocoupler (e.g. PC817) + resistor on the switched line → GPIO | | | Or use the hold-up module's power-fail output, if it has one |
-| 6 | Hold-up | 10–20 s of power for a clean shutdown after ignition off | Supercap module on the 5 V rail | TBD | | Needs ~1.5 W for ~20 s. Must not back-feed the 12 V side. |
-| 7 | Wi-Fi | Home sync / hotspot | Onboard (2.4 GHz only) | built in | | The home network must offer 2.4 GHz |
-| 8 | Event button | Timestamp intermittent events | Panel-mount momentary button | | | One GPIO + ground |
-| 9 | Accelerometer (optional) | Detect jolts | TBD (I²C, e.g. an LIS3DH or MPU-6050 breakout) | | | Later phase |
-| 10 | Enclosure | Mounting, heat | Plastic case (owned) | owned | | Check that the Pi + HAT stack fits; see notes |
-| 11 | USB OBD adapter | FORScan PID capture on a laptop; fallback interface | OBDLink EX | | | |
+| 1 | GPIO header | Connects the HAT to the Pi | 2×20 male pin header, 2.54 mm | ~2 (est.) | | Owner solders it on |
+| 2 | CAN HAT | HS-CAN interface + 12 V → 5 V power | **PiCAN FD Zero with 1A SMPS** (SK Pang) | ~98 (US$69.95) | [Copperhill](https://copperhilltech.com/pican-fd-zero-can-fd-hat-for-raspberry-pi-zero-with-1a-smps/) | MCP2518FD, mainline `mcp251xfd` driver, 6–20 V input. A second Copperhill page lists US$84.95, so check at checkout. No Canadian stockist found. |
+| 3 | Enclosure | Holds the Pi + one HAT | **UniPiCase Zero – Tall** | 11.95 | [PiShop.ca](https://www.pishop.ca/product-category/raspberry-pi/raspberry-pi-cases/model-zero-and-zero-w/) | Made in Canada. The tall lid leaves room for one HAT. A hole needs drilling for the PiCAN's screw-terminal wires. |
+| 4 | OBD-II cable | OBD-II plug to the HAT's screw terminals | 16-pin J1962 male to open wire pigtail, 30–60 cm | ~15–20 (est.) | e.g. iKKEGOL on Amazon.ca | Check pin colours with a multimeter. Uses pins 6/14 (HS-CAN) and 5 (signal ground). |
+| 5 | Fuse tap | +12 V only while the ignition is on | Add-a-circuit fuse tap, **Micro2** (likely; confirm) + 2 A fuse | ~10–15 (est.) | [Littelfuse FHM-series](https://littelfuse.com/products/fuse-blocks-fuseholders-and-fuse-accessories/specialty-items/add-a-circuit-mini-carded/fhm20200z.aspx) | Pull a fuse from the interior panel to confirm Micro2 vs. mini. Use a full-height tap, not low-profile. Ground to a chassis point. |
+| 6 | Event button | Timestamp intermittent events | Panel-mount momentary button + 2-wire lead | ~5 (est.) | | One GPIO + ground |
+
+**Total: about CA$145, plus shipping from Copperhill.**
+
+## Already owned
+
+| Part | Notes |
+|---|---|
+| Raspberry Pi Zero 2 W | No header yet. Onboard Wi-Fi is 2.4 GHz only. |
+| 64 GB microSDXC, UHS-I U3 | A standard card, not high-endurance. Fine for development and a first build: the logger writes under 1 MB per driving hour. |
+| Plastic case | Doesn't fit a HAT. Replaced by #3. |
+| Soldering iron | |
+
+## Later / optional
+
+| Part | Purpose | Notes |
+|---|---|---|
+| Accelerometer (LIS3DH or MPU-6050 breakout, I²C) | Detect jolts | Later phase |
+| OBDLink EX + FORScan | Capture Ford PIDs on a laptop; fallback interface | Only if not already owned |
+| High-endurance microSD, 32–64 GB (e.g. SanDisk High Endurance, Samsung PRO Endurance) | Better tolerance of power loss in the car | ~15–25 CAD (est.). Out of scope for now: buy it only if the current card corrupts. The current card then becomes the spare/dev card. |
+| Hold-up module: Stubborn Balance Zero (AQEX) | Power for a clean shutdown | ~88 CAD (US$63), [Lectronz](https://lectronz.com/products/aqex-stubborn-balance-zero-ups-hat-rpi-zero-2-wh). Skipped for cost. Only add it if SD corruption shows up in practice. It's a second HAT, so it needs a deeper case. |
 
 ## Notes
 
@@ -25,18 +41,27 @@ Draft for a **Raspberry Pi Zero 2 W** build. Prices are not filled in yet; check
 
 The Zero 2 W only fits Zero-sized HATs, and the dual-channel boards are full Pi size. On the 2017 Explorer the PCM (which also runs the 6F50 transmission) and ABS are on HS-CAN, so every channel in the logging plan is reachable there. MS-CAN carries body and comfort modules and isn't needed for engine and drivetrain health.
 
+### No hold-up module (decided 2026-10-24)
+
+Skipped to keep the project cheap. The supercap modules for the Zero are HATs, so one would need a deeper case and add about CA$90. Instead, sudden power loss is made harmless in software:
+- The root filesystem is read-only, so the OS can't be corrupted.
+- Each trip is its own file, flushed to disk (`fsync`) every few seconds. Losing power loses at most the last few seconds of a trip.
+- At the next boot, any trip left unfinished is closed and summarized.
+
+The cost of skipping it is a small risk of SD-card corruption from losing power mid-write. If that happens in practice, add the hold-up module and a deeper case.
+
 ### Power
 
 Switched power, with sync at startup:
 
-1. A fuse tap on a circuit that's live only in RUN feeds the PiCAN FD Zero's 6–20 V input. With the ignition off, the Pi has no power at all, so it can't drain the battery or keep modules awake. No timed cutoff or low-voltage cutoff is needed.
+1. A fuse tap on a circuit that's live only in RUN feeds the PiCAN FD Zero's 6–20 V input. With the ignition off, the Pi has no power at all, so it can't drain the battery or keep modules awake.
 2. At startup (usually while the car warms up in the regular parking spot or on the street out front), the Pi joins home Wi-Fi if it's in range and uploads any trips not yet synced, while it logs the new trip.
-3. When the ignition goes off, the opto input sees the 12 V feed drop. The Pi closes the trip file, writes the summary and shuts down on supercap power.
+3. When the ignition goes off, power is lost at once (no ignition sense or hold-up in v1), so the trip is closed and summarized at the next boot.
 
-Sync is opportunistic. Files stay on the SD card until rclone confirms the upload, so a missed or interrupted sync just catches up on a later start. Data can arrive days late, which is fine for long-term trends.
+Sync is opportunistic. Files stay on the SD card until rclone confirms the upload, so a missed sync just catches up on a later start.
 
 Budget: boot ~20–30 s, Wi-Fi ~5–15 s, rclone ~5 s, upload a few seconds (about 430 KB for an hour of driving before compression).
 
 ### Heat
 
-The Zero 2 W only runs while driving, so a parked, hot cabin doesn't matter while it's powered off. Keep the case out of direct sun and away from heater vents.
+The Pi only runs while the ignition is on, so a hot parked cabin doesn't matter while it's powered off. Keep the case out of direct sun and away from heater vents.

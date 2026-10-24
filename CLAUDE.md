@@ -33,7 +33,7 @@ This repo will be public. Keep personal details (VIN, addresses, email, Wi-Fi or
 - **Power (agreed 2026-10-24, kept simple):**
   - A switched fuse tap (live only in RUN) feeds the CAN HAT's 12 V input. OBD pin 16 is not used for power.
   - With the ignition off the Pi has no power, so it can't drain the battery or poll the bus. No timed or low-voltage cutoff is needed.
-  - An optocoupler on the switched line tells a GPIO that the ignition is off. A supercap on the 5 V rail gives 10–20 s to close the trip file and shut down cleanly.
+  - No ignition-sense optocoupler and no supercap hold-up module, to keep the project cheap. Trip files are flushed every few seconds, and unfinished trips are closed and summarized at the next boot.
 - **Storage:** a read-only root filesystem (overlayfs), with logs on a separate partition or USB stick.
 - **Sync:** opportunistic, at startup. While the car warms up in the regular parking spot or on the street out front, `rclone` uploads unsynced CSVs to a Google Drive folder if home Wi-Fi is in range. Files stay local until the upload is confirmed. Data arriving days late is fine, because the goal is long-term trends, not daily stats. Claude reads the files from Drive for analysis. An optional Pi hotspot with a small web page allows downloads when away from home.
 - **Analysis:** the per-trip summaries feed a Telemetry tab in the owner's maintenance Google Sheet, which lives outside this repo.
@@ -41,7 +41,6 @@ This repo will be public. Keep personal details (VIN, addresses, email, Wi-Fi or
 ## Open questions
 
 - Confirm the CAN HAT: PiCAN FD Zero (recommended) or the cheaper Waveshare RS485 CAN HAT plus a separate 12 V supply. MS-CAN is dropped for now.
-- Which fuse to tap (live only in RUN) in the Explorer's panel, and which supercap module to use.
-- Check that home Wi-Fi (2.4 GHz) reaches the regular parking spot and the street out front, from inside the car.
-- Is the SD card high-endurance?
-- Enclosure: does the owned plastic case fit the Pi plus a HAT? Mounting location.
+- Which fuse to tap (live only in RUN) in the Explorer's panel, and its size (Micro2 or mini).- Check that home Wi-Fi (2.4 GHz) reaches the regular parking spot and the street out front, from inside the car.
+- The owned SD card is a standard 64 GB UHS-I U3 card, not high-endurance. If it corrupts, the fix is a high-endurance card and/or a supercap. Both are out of scope for now.
+- Mounting location in the car (sets cable lengths). The enclosure is the UniPiCase Zero Tall, because the owner's plastic case doesn't fit a HAT.
