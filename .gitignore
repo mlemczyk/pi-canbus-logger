@@ -1,0 +1,15 @@
+# Python
+__pycache__/
+*.pyc
+.venv/
+
+# Logs and captures (may reveal location and driving habits)
+logs/
+captures/
+*.csv
+*.log
+
+# Secrets
+rclone.conf
+*.env
+wpa_supplicant*.conf
