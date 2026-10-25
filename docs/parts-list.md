@@ -17,18 +17,21 @@ Draft for a **Raspberry Pi Zero 2 W** build. Prices were checked on 2026-10-24.
 
 **Full build total: about CA$70–85, all from Canadian sellers.**
 
-### Prototype order (cheapest first step, decided 2026-10-24)
+### First order (decided 2026-10-24)
 
-Buy only what's needed to read the car's CAN bus on the desk and in the car. The case (#3), power kit (#5) and event button (#6) wait until the prototype works.
+The owner is saving up for this. It covers reading the car's CAN bus and a permanent install under the driver's seat. The event button (#6) and accelerometer come later.
 
 | Part | Where | CAD |
 |---|---|---|
-| #2 RS485 CAN HAT | a local electronics shop (in store) | 20.00 |
+| #2 Waveshare RS485 CAN HAT | a local electronics shop (in store) | 20.00 |
 | #1 2×20 male header, 2.54 mm | a local electronics shop (stock not checked) | ~2 (est.) |
-| #4 CERRXIAN OBD-II cable, 1.5 m | Amazon.ca | 16.99 |
-| **Total** | | **~39** |
+| #3 Hammond 1591XXESFLBK box, 193 × 113 × 58 mm | a local electronics shop | 12.50 |
+| M2.5 nylon standoffs + screws (~4–5 mm), rubber grommet | a local electronics shop (stock not checked) | ~5 (est.) |
+| #4 CERRXIAN OBD-II male pigtail, 1.5 m | [Amazon.ca](https://www.amazon.ca/dp/B0CXHLG31Q) | 16.99 |
+| #5 EWAY dash-cam hardwire kit (5 V/2 A, all four fuse-tap sizes) | [Amazon.ca](https://www.amazon.ca/dp/B0D54C6CK3) | 19.99 |
+| **Total** | | **~77 + tax** |
 
-Prototype power: a 12 V socket USB adapter, unplugged when the car is off (see "Testing setup" below). Run the Pi without a case: keep it off metal surfaces, for example in an anti-static bag or on a piece of cardboard.
+Prices checked 2026-10-24; the local shop and Amazon.ca prices change. Until the hardwire kit is installed, the Pi can run from a 12 V socket USB adapter, unplugged when the car is off (see "Testing setup" below).
 
 ## Already owned
 
