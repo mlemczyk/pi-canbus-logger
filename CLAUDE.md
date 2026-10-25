@@ -13,7 +13,7 @@ The GitHub repo stays **private** until the logger works, then goes public. Git 
 
 - Planning stage. No code yet.
 - Hardware owned: Raspberry Pi Zero 2 W (no header yet; the owner will solder on a 2×20 male header), 64 GB microSD, plastic case.
-- Draft parts list in `docs/parts-list.md` (about CA$70–85): Waveshare RS485 CAN HAT (single-channel HS-CAN), UniPiCase Zero Tall, and a dash-cam hardwire kit on a switched fuse. No supercap. Sync at startup.
+- Draft parts list in `docs/parts-list.md` (about CA$70–85): Waveshare RS485 CAN HAT (single-channel HS-CAN), Hammond 1591XXESFLBK box (the local shop), and a dash-cam hardwire kit on a switched fuse. No supercap. Sync at startup.
 - First step is a cheapest-possible prototype (~CA$39): CAN HAT + header from a local electronics shop, CERRXIAN OBD-II cable from Amazon.ca, powered from a 12 V socket USB adapter, with no case. The case, hardwire kit and event button come later.
 - No GitHub remote yet; the owner will create the repo later.
 
@@ -24,8 +24,13 @@ The GitHub repo stays **private** until the logger works, then goes public. Git 
 
 ## Design decisions (agreed 2026-10-24)
 
-- **Connection:** a CAN HAT on the Pi (Waveshare RS485 CAN HAT, MCP2515, single channel; the upgrade path is the Waveshare 2-CH Isolated CAN FD HAT if MS-CAN data is wanted), wired to the OBD-II port. HS-CAN is on pins 6/14; Ford's MS-CAN is on pins 3/11. It uses Linux SocketCAN with `python-can`, `can-isotp` and `udsoncan`. A USB adapter (OBDLink EX / ELM327-class) is the fallback, and it's also used with FORScan on a laptop to capture Ford PIDs.
-- **Data:** standard OBD-II mode 01/06, plus Ford extended PIDs over UDS service 0x22. The 0x22 IDs and scaling come from capturing FORScan's requests on the bus and from community lists, checked on the car. The logger only reads: no writes, routines or session changes.
+- **Connection:** a CAN HAT on the Pi (Waveshare RS485 CAN HAT, MCP2515, single channel; the upgrade path is the Waveshare 2-CH Isolated CAN HAT (MCP2515) if MS-CAN data is wanted), wired to the OBD-II port. HS-CAN is on pins 6/14; Ford's MS-CAN is on pins 3/11. It uses Linux SocketCAN with `python-can`, `can-isotp` and `udsoncan`. A laptop or phone with FORScan is optional, not part of the core plan.
+- **Data:** standard OBD-II mode 01/06, plus Ford extended PIDs over UDS service 0x22.
+  - Standard PIDs need no discovery: RPM, speed, load, throttle, coolant, fuel trims, module voltage, mode 06 misfire counts.
+  - The Ford-only channels (transmission temperature, cam timing desired/actual, knock, battery state of charge, fan duty) take their 0x22 IDs and scaling from community lists, each checked on the car with sanity tests.
+  - A read-only 0x22 ID scan from the Pi can show which IDs the PCM supports.
+  - FORScan is optional: only if some channels stay unconfirmed, for one session sniffing its requests with `candump` through an OBD Y-splitter.
+  - The logger only reads: no writes, routines or session changes.
 - **Logging strategy: automatic but thin.**
   - Every trip is logged at 1 Hz on 10 to 15 channels.
   - The Pi writes a one-line summary per trip.
@@ -51,8 +56,8 @@ The GitHub repo stays **private** until the logger works, then goes public. Git 
 
 ## Open questions
 
-- Get an OBDLink EX (not owned, ~CA$85 est.) for FORScan: Ford PID capture and seeing which modules sit on MS-CAN only. Decide later whether MS-CAN is worth the 2-CH HAT upgrade.
+- FORScan (optional, decided 2026-10-24): only needed if community-list Ford PIDs can't be confirmed on the car, or to see which modules sit on MS-CAN only. Borrow or buy an adapter (~CA$40–85) plus an OBD Y-splitter then. Decide later whether MS-CAN is worth the 2-CH HAT upgrade.
 - Which fuse to tap (live only in RUN) in the Explorer's panel, and its size (Micro2 or mini).
 - Check that home Wi-Fi (2.4 GHz) reaches the regular parking spot and the street out front, from inside the car.
 - The owned SD card is a standard 64 GB UHS-I U3 card, not high-endurance. If it corrupts, the fix is a high-endurance card and/or a supercap. Both are out of scope for now.
-- Mounting location in the car (sets cable lengths). The enclosure is the UniPiCase Zero Tall, because the owner's plastic case doesn't fit a HAT.
+- Mounting location in the car (sets cable lengths). The enclosure is a Hammond 1591XXESFLBK (193 × 113 × 58 mm) from a local electronics shop. The owner's plastic case doesn't fit a HAT. Check that the box fits the chosen spot.
