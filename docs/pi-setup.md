@@ -36,6 +36,14 @@ Unused on a headless CAN logger. Purged with `apt-get purge --autoremove`. The p
 - apt: `can-utils` (candump, cansend, isotptp), `rclone`, `python3-venv`
 - Python venv at `/opt/canlogger/venv`: `python-can`, `can-isotp`, `udsoncan`
 
+## Google Drive sync (rclone)
+
+- The remote `gdrive` (type `drive`) uses scope **`drive.file`**: rclone can only see files and folders it created itself, so a stolen Pi exposes only the logs, not the rest of the Drive.
+- Uploads go to the `pi-can-logger` folder in My Drive, which rclone created.
+- Set up with `rclone config` on the Pi, answering "n" to browser auto-auth, then running the printed `rclone authorize "drive" "..."` on a PC with a browser and pasting the token back. The owner does this step themselves, so the token never leaves their hands.
+- The token lives in `~/.config/rclone/rclone.conf` (mode 600) on the Pi, never in this repo. `rclone.conf` is in `.gitignore`.
+- Tested 2026-10-24: `rclone copy` of a test file to `gdrive:pi-can-logger/`, confirmed from the Drive side.
+
 ## Boot config
 
 Originals saved on the Pi as `/boot/firmware/config.txt.orig` and `cmdline.txt.orig`.
