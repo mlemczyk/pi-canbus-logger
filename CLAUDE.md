@@ -4,6 +4,11 @@ An always-on Raspberry Pi data logger that plugs into a car's OBD-II port, logs 
 
 This repo will be public. Keep personal details (VIN, addresses, email, Wi-Fi or cloud credentials) out of every committed file.
 
+The GitHub repo stays **private** until the logger works, then goes public. Git history becomes public too, so the same rules apply to every commit now. Build photos:
+- Strip EXIF/GPS metadata before committing.
+- Resize to about 1600 px on the long side.
+- Check them for a VIN, licence plate, house or street, or a screen showing personal info.
+
 ## Status
 
 - Planning stage. No code yet.

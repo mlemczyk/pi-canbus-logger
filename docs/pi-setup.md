@@ -44,6 +44,16 @@ Unused on a headless CAN logger. Purged with `apt-get purge --autoremove`. The p
 - The token lives in `~/.config/rclone/rclone.conf` (mode 600) on the Pi, never in this repo. `rclone.conf` is in `.gitignore`.
 - Tested 2026-10-24: `rclone copy` of a test file to `gdrive:pi-can-logger/`, confirmed from the Drive side.
 
+## Config backup
+
+`scripts/backup-pi-config.sh` pulls the Pi's config over SSH into a dated folder on the PC, by default `~/pi-can-logger-backup/`. The script refuses to write inside the repo. The backup includes:
+- boot config, Wi-Fi, sudoers, SSH host keys, authorized_keys
+- `rclone.conf` (the Drive token)
+- systemd enable/mask links
+- package lists
+
+A dead SD card can then be replaced without redoing the Drive sign-in. Restore steps are in the backup folder's `README.md`. The backup holds secrets, so keep it out of git and cloud-synced folders. Re-run the script after changing the Pi.
+
 ## Boot config
 
 Originals saved on the Pi as `/boot/firmware/config.txt.orig` and `cmdline.txt.orig`.
