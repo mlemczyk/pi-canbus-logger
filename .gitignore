@@ -13,3 +13,10 @@ captures/
 rclone.conf
 *.env
 wpa_supplicant*.conf
+
+# SSH keys and certificates (keys live in ~/.ssh, never in the repo)
+id_*
+*.pem
+*.key
+*_ed25519*
+*.pub
