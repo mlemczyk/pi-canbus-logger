@@ -21,7 +21,7 @@ The GitHub repo stays **private** until the logger works, then goes public. Git 
   - OBD-II cable and hardwire kit from Amazon.ca
 - Then: solder the header, enable the `mcp2515` overlay (check the HAT's crystal), and run a first `candump` in the car.
 - Hardware owned: Pi Zero 2 W (no header yet; the owner will solder a 2×20 male header), 64 GB microSD, an old plastic case (doesn't fit a HAT).
-- No GitHub remote yet. The owner will create a **private** repo later.
+- GitHub: [mlemczyk/pi-canbus-logger](https://github.com/mlemczyk/pi-canbus-logger), **private** (created 2026-10-24). The local folder is named `pi-can-logger`.
 
 ## To-do before ordering parts
 
