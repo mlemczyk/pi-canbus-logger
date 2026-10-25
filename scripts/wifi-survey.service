@@ -1,0 +1,14 @@
+# Temporary: logs Wi-Fi signal from boot, to pick a mounting spot in the car.
+# Install: replace @USER@ with the login user, copy to /etc/systemd/system/,
+# then `systemctl enable --now wifi-survey`.
+# Remove when done: `systemctl disable --now wifi-survey`.
+[Unit]
+Description=Wi-Fi signal survey for picking the logger's mounting spot
+
+[Service]
+User=@USER@
+ExecStart=/opt/canlogger/bin/wifi-survey.sh /opt/canlogger/wifi-survey.csv 2
+Restart=always
+
+[Install]
+WantedBy=multi-user.target

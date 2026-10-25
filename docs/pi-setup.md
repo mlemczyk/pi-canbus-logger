@@ -44,6 +44,51 @@ Unused on a headless CAN logger. Purged with `apt-get purge --autoremove`. The p
 - The token lives in `~/.config/rclone/rclone.conf` (mode 600) on the Pi, never in this repo. `rclone.conf` is in `.gitignore`.
 - Tested 2026-10-24: `rclone copy` of a test file to `gdrive:pi-can-logger/`, confirmed from the Drive side.
 
+## Wi-Fi survey (for choosing the mounting spot)
+
+### Results (2026-10-24)
+
+The Pi was on a USB power bank, carried through the car's usual parking spots. Each spot ran for about 1–2 minutes, logging every 2 s.
+
+| Spot | Readings | Average | Best / worst | Router ping fails |
+|---|---|---|---|---|
+| Regular parking spot, under the driver's seat | 146 | **no link** | — | all |
+| Out front, outside the car (reference) | 8+ | −67.4 dBm | −63 / −71 | 0 |
+| Out front, dashboard | 71 | −71.1 dBm | −67 / −75 | 3 single drops |
+| Out front, under the driver's seat | 35 | −74.9 dBm | −73 / −78 | 0 |
+| Out front, rear side console by the house-side window | 69 | −75.5 dBm | −73 / −80 | 0 |
+| Out front, passenger side beside the centre console | 42 | −77.3 dBm | −70 / −80 | 0 |
+
+**Conclusions:**
+- **Mount under the driver's seat.** It's mid-pack for signal, closest to the OBD port, hidden and shaded. The dashboard is only ~4 dB better.
+- The car body costs ~7–8 dB; the rest of the loss is distance and the house's walls.
+- **Syncs happen only when parked out front.** The regular parking spot has no Wi-Fi.
+- After driving up from the regular parking spot, the Pi rejoined Wi-Fi ~20 s after parking out front.
+- **If syncs prove unreliable:** a Wi-Fi extender at a street-facing window, a USB Wi-Fi adapter on an extension cable with its antenna up near the windshield, or the phone hotspot as a second network.
+
+The survey service was removed after the test. The script stays at `/opt/canlogger/bin/` for re-runs.
+
+### How to run it
+
+`scripts/wifi-survey.sh` ran as `wifi-survey.service` (installed then removed 2026-10-24). Every 2 s it appends a row to `/opt/canlogger/wifi-survey.csv`:
+- time and uptime
+- signal in dBm and link quality
+- ping times to the router and to the internet (`fail` when unreachable)
+
+The CSV stays on the Pi.
+
+**Reading the signal:** above −67 dBm is solid, −67 to −75 dBm usually works for small uploads, below −75 dBm is marginal, and router pings showing `fail` mean no sync from that spot.
+
+**Procedure:**
+1. Boot the Pi indoors so its clock syncs.
+2. Without unplugging it, move it onto a USB power bank and carry it to the car. The Pi has no clock battery, so if it boots out of Wi-Fi range its timestamps are wrong; the uptime column still gives relative times.
+3. Leave it about 1 minute in each candidate spot, in the regular parking spot and parked out front. Note the clock time at each move.
+
+Remove it when done:
+```
+sudo systemctl disable --now wifi-survey && sudo rm /etc/systemd/system/wifi-survey.service
+```
+
 ## Config backup
 
 `scripts/backup-pi-config.sh` pulls the Pi's config over SSH into a dated folder on the PC, by default `~/pi-can-logger-backup/`. The script refuses to write inside the repo. The backup includes:

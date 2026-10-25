@@ -51,13 +51,12 @@ The GitHub repo stays **private** until the logger works, then goes public. Git 
   - With the ignition off the Pi has no power, so it can't drain the battery or poll the bus. No timed or low-voltage cutoff is needed.
   - No ignition-sense optocoupler and no supercap hold-up module, to keep the project cheap. Trip files are flushed every few seconds, and unfinished trips are closed and summarized at the next boot.
 - **Storage:** a read-only root filesystem (overlayfs), with logs on a separate partition or USB stick.
-- **Sync:** opportunistic, at startup. While the car warms up in the regular parking spot or on the street out front, `rclone` uploads unsynced CSVs to a Google Drive folder if home Wi-Fi is in range. Files stay local until the upload is confirmed. Data arriving days late is fine, because the goal is long-term trends, not daily stats. Claude reads the files from Drive for analysis. An optional Pi hotspot with a small web page allows downloads when away from home.
+- **Sync:** opportunistic. Whenever home Wi-Fi is in range, `rclone` uploads unsynced CSVs to a Google Drive folder in the background while logging continues. In practice that's when the car is parked or warming up on the street out front: the regular parking spot has no Wi-Fi (survey 2026-10-24, see docs/pi-setup.md). Files stay local until the upload is confirmed. Data arriving days late is fine, because the goal is long-term trends, not daily stats. Claude reads the files from Drive for analysis. An optional Pi hotspot with a small web page allows downloads when away from home.
 - **Analysis:** the per-trip summaries feed a Telemetry tab in the owner's maintenance Google Sheet, which lives outside this repo.
 
 ## Open questions
 
 - FORScan (optional, decided 2026-10-24): only needed if community-list Ford PIDs can't be confirmed on the car, or to see which modules sit on MS-CAN only. Borrow or buy an adapter (~CA$40–85) plus an OBD Y-splitter then. Decide later whether MS-CAN is worth the 2-CH HAT upgrade.
 - Which fuse to tap (live only in RUN) in the Explorer's panel, and its size (Micro2 or mini).
-- Check that home Wi-Fi (2.4 GHz) reaches the regular parking spot and the street out front, from inside the car.
 - The owned SD card is a standard 64 GB UHS-I U3 card, not high-endurance. If it corrupts, the fix is a high-endurance card and/or a supercap. Both are out of scope for now.
-- Mounting location in the car (sets cable lengths). The enclosure is a Hammond 1591XXESFLBK (193 × 113 × 58 mm) from a local electronics shop. The owner's plastic case doesn't fit a HAT. Check that the box fits the chosen spot.
+- Mounting: **under the driver's seat** (decided 2026-10-24 from the Wi-Fi survey: ~−75 dBm out front, connected without dropouts, closest to the OBD port). Raise the box off the carpet, leave cable slack for seat travel, keep clear of airbag/seat wiring. The enclosure is a Hammond 1591XXESFLBK (193 × 113 × 58 mm) from a local electronics shop; check it fits under the seat.
