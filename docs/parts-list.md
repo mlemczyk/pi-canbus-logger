@@ -19,7 +19,7 @@ Draft for a **Raspberry Pi Zero 2 W** build. Prices were checked on 2026-10-24.
 
 ### First order (decided 2026-10-24)
 
-The owner is saving up for this. It covers reading the car's CAN bus and a permanent install under the driver's seat. The event button (#6) and accelerometer come later.
+The owner is saving up for this. It covers reading the car's CAN bus and a permanent install under the driver's seat. The event button (#6) comes later. The RTC and accelerometer are already owned (see "Already owned").
 
 | Part | Where | CAD |
 |---|---|---|
@@ -41,12 +41,13 @@ Prices checked 2026-10-24; the local shop and Amazon.ca prices change. Until the
 | 64 GB microSDXC, UHS-I U3 | A standard card, not high-endurance. Fine for development and a first build: the logger writes under 1 MB per driving hour. |
 | Plastic case | Doesn't fit a HAT. Replaced by #3. |
 | Soldering iron | |
+| ZS-042 RTC module (DS3231 + AT24C32 EEPROM, CR2032 holder) | From the owner's Arduino parts (found 2026-10-26, chips not yet confirmed). Keeps the time with the ignition off. Remove the charging resistor first. See "Clock and accelerometer (I²C)" below. |
+| GY-521 accelerometer/gyro (MPU-6050) | From the owner's Arduino parts (found 2026-10-26, chip not yet confirmed). Detects jolts for the event log. Tie AD0 to 3.3 V so it doesn't clash with the RTC. See "Clock and accelerometer (I²C)" below. |
 
 ## Later / optional
 
 | Part | Purpose | Notes |
 |---|---|---|
-| Accelerometer (LIS3DH or MPU-6050 breakout, I²C) | Detect jolts | Later phase |
 | FORScan adapter + OBD Y-splitter (optional) | One-time discovery of Ford PID names/scaling by sniffing FORScan; shows which modules sit on MS-CAN | Only if community-list PIDs can't be confirmed. Adapter ~CA$40–85 (e.g. [OBDLink EX](https://www.obdlink.com/products/obdlink-ex/), US$60), Y-splitter ~CA$15. A phone with FORScan Lite can replace the laptop. |
 | Waveshare 2-CH Isolated CAN HAT (MCP2515 + SN65HVD230) | Upgrade: adds MS-CAN (TPMS, battery monitoring, cluster data) + isolation, TVS and ESD protection | CA$44.99, [Amazon.ca](https://www.amazon.ca/dp/B087RJ6XGG). Same driver and software as the RS485 HAT. Full-size HAT (65 × 56 mm), overhangs the Zero, so it needs a custom case. Both channels on SPI0 (interrupts likely GPIO 23/25, 16 MHz crystal: confirm on the board). The CAN FD version (CA$65.80, PiShop.ca) isn't needed: the car uses classic CAN. |
 | High-endurance microSD, 32–64 GB (e.g. SanDisk High Endurance, Samsung PRO Endurance) | Better tolerance of power loss in the car | ~15–25 CAD (est.). Out of scope for now: buy it only if the current card corrupts. The current card then becomes the spare/dev card. |
@@ -84,6 +85,37 @@ Budget: boot ~20–30 s, Wi-Fi ~5–15 s, rclone ~5 s, upload a few seconds (abo
 For first tests, power the Pi from a 12 V socket USB adapter (≥2.4 A port) with a micro-USB cable, and unplug it when the car is turned off. This defers part #5 and brings the first order down to about CA$55–60.
 - Before the read-only root is set up, shut down from SSH (`sudo shutdown now`) before unplugging, to protect the SD card.
 - Some 12 V sockets stay live after the ignition is off. The logger stops polling when the CAN bus goes quiet, so a forgotten Pi won't keep modules awake, but it will still draw a little power.
+
+### Clock and accelerometer (I²C)
+
+Both boards came from the owner's Arduino parts. They share the Pi's I²C bus (I2C1, GPIO2/3), which the CAN HAT doesn't use.
+
+**Why an RTC:** the Pi has no clock of its own. Without power it boots with the last saved time and only corrects it over NTP. Cold starts in the regular parking spot never get Wi-Fi, so trips would carry wrong timestamps. With the read-only root, fake-hwclock can't even update its saved time. The DS3231 (±2 ppm, about a minute a year) runs on its coin cell while the ignition is off, so timestamps are right from the first log line.
+
+**ZS-042 charging-resistor fix:** the board trickle-charges the coin cell through a resistor (usually marked 201, 200 Ω) and a diode. A standard CR2032 isn't rechargeable and can swell or leak. Before fitting a CR2032, remove that resistor (or the diode), or else use a rechargeable LIR2032. Running at 3.3 V lowers the charge current but doesn't stop it. Replace the cell if it reads below about 2.8 V.
+
+**Address clash:** the DS3231 and the MPU-6050 both default to **0x68**. Tie the MPU's **AD0 to 3.3 V** to move it to **0x69**. Expected `i2cdetect -y 1` result: `0x57` (RTC board EEPROM), `0x68` (DS3231), `0x69` (MPU-6050).
+
+**Wiring** (both boards on **3.3 V, never 5 V**: their SDA/SCL pull-ups go to VCC and would put 5 V on the Pi's pins):
+
+| Signal | Pi Zero 2 W pin | ZS-042 (RTC) | GY-521 (MPU-6050) |
+|---|---|---|---|
+| 3.3 V | pin 1 or 17 | VCC | VCC, and AD0 |
+| GND | pin 6 or 9 | GND | GND |
+| SDA | pin 3 (GPIO2) | SDA | SDA |
+| SCL | pin 5 (GPIO3) | SCL | SCL |
+| Interrupt | pin 11 (GPIO17), optional | — | INT ("jolt detected") |
+| Not connected | | 32K, SQW | XDA, XCL (aux bus for a magnetometer) |
+
+Keep INT and the event button off the HAT's pins (GPIO 4, 8–11, 14/15, 25). The HAT covers the header, so use a tall stacking header or solder the I²C wires to the header pins from under the Pi.
+
+**Confirming the chips:** read the markings (DS3231SN/DS3231M; MPU-6050). Before the Pi header is on, both boards can be tested on an Arduino at 5 V (SDA→A4, SCL→A5) with an I²C scanner sketch. The MPU's WHO_AM_I register (0x75) reads 0x68 on a genuine MPU-6050. 0x70 means MPU-6500, 0x71 means MPU-9250, and other values usually mean a clone.
+
+**Pi setup:**
+1. Turn on I²C (`raspi-config` → Interface Options → I2C).
+2. Add `dtoverlay=i2c-rtc,ds3231` to `/boot/firmware/config.txt`.
+3. Remove `fake-hwclock`.
+4. Once the Pi has synced over Wi-Fi, run `sudo hwclock -w` to store the correct time in the RTC. At each boot after that, the Pi reads the time from the RTC.
 
 ### Heat
 

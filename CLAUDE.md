@@ -21,6 +21,7 @@ The GitHub repo stays **private** until the logger works, then goes public. Git 
   - OBD-II cable and hardwire kit from Amazon.ca
 - Then: solder the header, enable the `mcp2515` overlay (check the HAT's crystal), and run a first `candump` in the car.
 - Hardware owned: Pi Zero 2 W (no header yet; the owner will solder a 2×20 male header), 64 GB microSD, an old plastic case (doesn't fit a HAT).
+  - Also from the owner's Arduino parts (found 2026-10-26, chips not yet confirmed): a ZS-042 RTC (DS3231) and a GY-521 accelerometer/gyro (MPU-6050). Both go on I²C. Wiring and setup are in `docs/parts-list.md` → "Clock and accelerometer (I²C)".
 - GitHub: [mlemczyk/pi-canbus-logger](https://github.com/mlemczyk/pi-canbus-logger), **private** (created 2026-10-24). The local folder is named `pi-can-logger`.
 
 ## To-do before ordering parts
@@ -52,6 +53,11 @@ The GitHub repo stays **private** until the logger works, then goes public. Git 
     - RPM, speed, load, throttle
     - fan duty, if available
 - **Event button:** a GPIO button, optionally with an accelerometer, to timestamp intermittent events (for example a driveline "klunk") for later correlation.
+  - The accelerometer is the owned MPU-6050 (GY-521) on I²C. Its INT pin can flag jolts on a free GPIO, for example GPIO17.
+- **Clock (added 2026-10-26):** a DS3231 RTC (the owned ZS-042 board) on I²C, so timestamps are right on cold starts with no Wi-Fi, such as in the regular parking spot. The Pi has no clock of its own, and with the read-only root, fake-hwclock can't save the time.
+  - Setup: `dtoverlay=i2c-rtc,ds3231`, remove `fake-hwclock`, then run `hwclock -w` once the Pi has synced over NTP.
+  - Before fitting a CR2032, remove the ZS-042's charging resistor (or use a rechargeable LIR2032).
+- **I²C bus:** shared by both boards, on 3.3 V only. The DS3231 and the MPU-6050 both default to 0x68, so tie the MPU's AD0 to 3.3 V to move it to 0x69. Expected addresses: 0x57 (EEPROM), 0x68 (RTC), 0x69 (MPU). Keep INT and the button off the HAT's pins (GPIO 4, 8–11, 14/15, 25).
 - **Power (agreed 2026-10-24, kept simple):**
   - A dash-cam hardwire kit (≥2 A, micro-USB), tapped into a fuse that is live only in RUN, powers the Pi. OBD pin 16 is not used for power.
   - With the ignition off the Pi has no power, so it can't drain the battery or poll the bus. No timed or low-voltage cutoff is needed.
