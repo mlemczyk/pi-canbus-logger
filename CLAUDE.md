@@ -16,10 +16,10 @@ The GitHub repo stays **private** until the logger works, then goes public. Git 
   - rclone to Google Drive tested.
   - Config backed up outside the repo.
   - Wi-Fi survey done. See `docs/pi-setup.md`.
-- **Next step: the owner is saving up to order the first parts** (~CA$77 + tax, list in `docs/parts-list.md` → "First order"):
-  - CAN HAT, header and box from a local electronics shop
-  - OBD-II cable and hardwire kit from Amazon.ca
-- Then: solder the header, enable the `mcp2515` overlay (check the HAT's crystal), and run a first `candump` in the car.
+- **Next step: the owner is saving up to order the first parts** (~CA$101 + tax, list in `docs/parts-list.md` → "First order"):
+  - 2-CH Isolated CAN HAT, OBD-II cable and hardwire kit from Amazon.ca
+  - Male header, box and standoffs from a local electronics shop
+- Then: solder the male header to the Pi and the HAT's stacking socket to the HAT, enable the `mcp2515` overlays (check the HAT's crystal and interrupt pins), and run a first `candump` in the car.
 - Hardware owned: Pi Zero 2 W (no header yet; the owner will solder a 2×20 male header), 64 GB microSD, an old plastic case (doesn't fit a HAT).
   - Also from the owner's Arduino parts (found 2026-10-26, chips not yet confirmed): a ZS-042 RTC (DS3231) and a GY-521 accelerometer/gyro (MPU-6050). Both go on I²C. Wiring and setup are in `docs/parts-list.md` → "Clock and accelerometer (I²C)".
 - GitHub: [mlemczyk/pi-canbus-logger](https://github.com/mlemczyk/pi-canbus-logger), **private** (created 2026-10-24). The local folder is named `pi-can-logger`.
@@ -31,7 +31,11 @@ The GitHub repo stays **private** until the logger works, then goes public. Git 
 
 ## Design decisions (agreed 2026-10-24)
 
-- **Connection:** a CAN HAT on the Pi (Waveshare RS485 CAN HAT, MCP2515, single channel; the upgrade path is the Waveshare 2-CH Isolated CAN HAT (MCP2515) if MS-CAN data is wanted), wired to the OBD-II port. HS-CAN is on pins 6/14; Ford's MS-CAN is on pins 3/11. It uses Linux SocketCAN with `python-can`, `can-isotp` and `udsoncan`. A laptop or phone with FORScan is optional, not part of the core plan.
+- **Connection:** a CAN HAT on the Pi, wired to the OBD-II port: the Waveshare 2-CH Isolated CAN HAT (2× MCP2515, isolated, TVS/ESD protection).
+  - Changed 2026-10-26 from the single-channel RS485 CAN HAT, for its pass-through pins (for I²C), protection and a free MS-CAN channel.
+  - Stack: plain 2×20 male header soldered to the Pi; the HAT's included stacking socket soldered to the HAT; screwed together with all four standoffs.
+  - Solder the I²C wires to the long pin tips above the HAT, because loose Dupont jumpers can work free with vibration. See `docs/parts-list.md` → "Header stack and vibration".
+  - Set both 120R jumpers to OFF and the VIO jumper to 3V3. HS-CAN is on pins 6/14; Ford's MS-CAN is on pins 3/11. It uses Linux SocketCAN with `python-can`, `can-isotp` and `udsoncan`. A laptop or phone with FORScan is optional, not part of the core plan.
 - **Data:** standard OBD-II mode 01/06, plus Ford extended PIDs over UDS service 0x22.
   - Standard PIDs need no discovery: RPM, speed, load, throttle, coolant, fuel trims, module voltage, mode 06 misfire counts.
   - The Ford-only channels (transmission temperature, cam timing desired/actual, knock, battery state of charge, fan duty) take their 0x22 IDs and scaling from community lists, each checked on the car with sanity tests.
@@ -57,7 +61,7 @@ The GitHub repo stays **private** until the logger works, then goes public. Git 
 - **Clock (added 2026-10-26):** a DS3231 RTC (the owned ZS-042 board) on I²C, so timestamps are right on cold starts with no Wi-Fi, such as in the regular parking spot. The Pi has no clock of its own, and with the read-only root, fake-hwclock can't save the time.
   - Setup: `dtoverlay=i2c-rtc,ds3231`, remove `fake-hwclock`, then run `hwclock -w` once the Pi has synced over NTP.
   - Remove the ZS-042's charging resistor, then fit a non-rechargeable cell: a CR2032, or a heat-rated BR2032 (about −30 to +85 °C) if one is easy to find. Not a LIR2032: at 3.3 V, after the diode drop, the board can't charge it.
-- **I²C bus:** shared by both boards, on 3.3 V only. The DS3231 and the MPU-6050 both default to 0x68, so tie the MPU's AD0 to 3.3 V to move it to 0x69. Expected addresses: 0x57 (EEPROM), 0x68 (RTC), 0x69 (MPU). Keep INT and the button off the HAT's pins (GPIO 4, 8–11, 14/15, 25).
+- **I²C bus:** shared by both boards, on 3.3 V only. The DS3231 and the MPU-6050 both default to 0x68, so tie the MPU's AD0 to 3.3 V to move it to 0x69. Expected addresses: 0x57 (EEPROM), 0x68 (RTC), 0x69 (MPU). Keep INT and the button off the HAT's pins (GPIO 7–11, plus its interrupts, likely 23 and 25).
 - **Power (agreed 2026-10-24, kept simple):**
   - A dash-cam hardwire kit (≥2 A, micro-USB), tapped into a fuse that is live only in RUN, powers the Pi. OBD pin 16 is not used for power.
   - With the ignition off the Pi has no power, so it can't drain the battery or poll the bus. No timed or low-voltage cutoff is needed.
@@ -75,7 +79,7 @@ The GitHub repo stays **private** until the logger works, then goes public. Git 
 
 ## Open questions
 
-- FORScan (optional, decided 2026-10-24): only needed if community-list Ford PIDs can't be confirmed on the car, or to see which modules sit on MS-CAN only. Borrow or buy an adapter (~CA$40–85) plus an OBD Y-splitter then. Decide later whether MS-CAN is worth the 2-CH HAT upgrade.
+- FORScan (optional, decided 2026-10-24): only needed if community-list Ford PIDs can't be confirmed on the car, or to see which modules sit on MS-CAN only. Borrow or buy an adapter (~CA$40–85) plus an OBD Y-splitter then. The 2-CH HAT can listen on MS-CAN directly.
 - Which fuse to tap (live only in RUN) in the Explorer's panel. The kit has all four tap sizes.
 - The owned SD card is a standard 64 GB UHS-I U3 card, not high-endurance. If it corrupts, the fix is a high-endurance card and/or a supercap. Both are out of scope for now.
 - Mounting: **under the driver's seat** (decided 2026-10-24 from the Wi-Fi survey: ~−75 dBm out front, connected without dropouts, closest to the OBD port). Raise the box off the carpet, leave cable slack for seat travel, keep clear of airbag/seat wiring. The enclosure is a Hammond 1591XXESFLBK (193 × 113 × 58 mm) from a local electronics shop; check it fits under the seat.

@@ -8,30 +8,30 @@ Draft for a **Raspberry Pi Zero 2 W** build. Prices were checked on 2026-10-24.
 
 | # | Part | Purpose | Candidate | Price (CAD) | Link | Notes |
 |---|---|---|---|---|---|---|
-| 1 | GPIO header | Connects the HAT to the Pi | 2×20 male pin header, 2.54 mm | ~2 (est.) | | Owner solders it on |
-| 2 | CAN HAT | HS-CAN interface | **Waveshare RS485 CAN HAT** | 20.00 | a local electronics shop (local pickup, 5 in stock on 2026-10-24); or [PiShop.ca](https://www.pishop.ca/product/rs485-can-hat-for-raspberry-pi/) at 19.95 + shipping | Uses GPIO 8–11 (SPI0, CS = CE0), 25 (CAN interrupt), 14/15 (RS485 UART) and 4 (RS485 direction): keep the event button off these pins. Overlay: `mcp2515-can0` with `interrupt=25`. MCP2515 + SN65HVD230, Zero-sized (65 × 30 mm), 3.3 V. The RS485 side goes unused. Check the crystal (8 or 12 MHz) for the `mcp2515` overlay. Check whether a 120 Ω terminator is fitted: the car's bus is already terminated. |
-| 3 | Enclosure | Holds the Pi + either HAT, cables, later the button | **Hammond 1591XXESFLBK** ABS box, black, flanged lid, 193 × 113 × 58 mm outside | 12.50 | a local electronics shop, 6 in stock on 2026-10-24 | Chosen 2026-10-24. Plastic, so Wi-Fi gets out. Plenty of room for the full-size 2-CH HAT too, but large: check it fits the mounting spot under the dash. The flanged lid has screw tabs for mounting. Add M2.5 nylon standoffs, a cable grommet and vent holes. Smaller option: UniPiCase Zero – Tall, CA$11.95 at [PiShop.ca](https://www.pishop.ca/product-category/raspberry-pi/raspberry-pi-cases/model-zero-and-zero-w/) (fits the Pi + RS485 HAT only). |
+| 1 | GPIO header | Plain male header on the Pi; the HAT's stacking socket plugs onto it | 2×20 male pin header, 2.54 mm, standard ~6 mm pins above the plastic | ~2 (est.) | a local electronics shop, or [Amazon.ca](https://www.amazon.ca/Raspberry-Pi-GPIO-Male-Header/dp/B074Q22Z43) (~4.49) | Owner solders it on. Still needed: the HAT comes with the female (stacking) half only. |
+| 2 | CAN HAT | HS-CAN + MS-CAN interface | **Waveshare 2-CH Isolated CAN HAT** (2× MCP2515 + SN65HVD230, isolated, TVS and ESD protection) | 44.99 | [Amazon.ca](https://www.amazon.ca/dp/B087RJ6XGG) | Chosen 2026-10-26 over the RS485 CAN HAT (see "Why the 2-CH isolated HAT" below). Comes with a 2×20 stacking header (female socket with long pins) and brass standoffs. Its 40-pin row is bare through-holes: solder the stacking socket to the HAT from underneath, so the long pins come out on top for the I²C wires. Full-size HAT (65 × 56 mm), overhangs the Zero. Both channels on SPI0 (CS0/CS1 = GPIO 8/7, SPI = GPIO 9–11). The interrupts are likely GPIO 23/25 and the crystal likely 16 MHz: confirm on the board for the `mcp2515` overlays. Set the PWR/VIO jumper to 3V3. Set both 120R jumpers to OFF: the car's buses are already terminated. |
+| 3 | Enclosure | Holds the Pi + HAT, the RTC and accelerometer, cables, later the button | **Hammond 1591XXESFLBK** ABS box, black, flanged lid, 193 × 113 × 58 mm outside | 12.50 | a local electronics shop, 6 in stock on 2026-10-24 | Chosen 2026-10-24. Plastic, so Wi-Fi gets out. Plenty of room for the full-size 2-CH HAT, but large: check it fits under the driver's seat. The flanged lid has screw tabs for mounting. Add M2.5 nylon standoffs (Pi to box), a cable grommet and vent holes. |
 | 4 | OBD-II cable | OBD-II plug to the HAT's screw terminals | **CERRXIAN** 16-pin J1962 male to open pigtail, 1.5 m, all 16 pins wired | 16.99 | [Amazon.ca](https://www.amazon.ca/dp/B0CXHLG31Q) | Chosen for its length: the box can mount away from the OBD port. Listed pin map: 5 yellow, 6 green, 14 brown/white (still check with a multimeter). Not chosen: the local shop 30 cm cable (CA$10, out of stock on 2026-10-24). |
 | 5 | Power | Switched +12 V → 5 V into the Pi's micro-USB power port | **EWAY dash-cam hardwire kit**, 2-wire, 12–24 V in, 5 V/2 A out, mini-USB plug + mini-to-micro adapter, fuse taps in all 4 sizes (LP mini, mini, ATO, Micro2) | 19.99 | [Amazon.ca](https://www.amazon.ca/dp/B0D54C6CK3) | 2 A is plenty (Pi Zero 2 W + HAT draw under 1 A). Having all four tap sizes means the fuse size doesn't need checking first. Secure the micro-USB adapter (heat-shrink or tape) against vibration. Tap a fuse that is live only in RUN; ground to a chassis point. Alternative: [3 A kit with micro + mini plugs](https://www.amazon.ca/dp/B07YBDMD8V), CA$23.99, 640 ratings, fuse tap types not listed. |
 | 6 | Event button | Timestamp intermittent events | Panel-mount momentary button + 2-wire lead | ~5 (est.) | | One GPIO + ground |
 
-**Full build total: about CA$70–85, all from Canadian sellers.**
+**Full build total: about CA$95–110, all from Canadian sellers.**
 
-### First order (decided 2026-10-24)
+### First order (decided 2026-10-24, HAT changed 2026-10-26)
 
 The owner is saving up for this. It covers reading the car's CAN bus and a permanent install under the driver's seat. The event button (#6) comes later. The RTC and accelerometer are already owned (see "Already owned").
 
 | Part | Where | CAD |
 |---|---|---|
-| #2 Waveshare RS485 CAN HAT | a local electronics shop (in store) | 20.00 |
-| #1 2×20 male header, 2.54 mm | a local electronics shop (stock not checked) | ~2 (est.) |
-| #3 Hammond 1591XXESFLBK box, 193 × 113 × 58 mm | a local electronics shop | 12.50 |
-| M2.5 nylon standoffs + screws (~4–5 mm), rubber grommet | a local electronics shop (stock not checked) | ~5 (est.) |
+| #2 Waveshare 2-CH Isolated CAN HAT (includes stacking header + standoffs) | [Amazon.ca](https://www.amazon.ca/dp/B087RJ6XGG) | 44.99 |
 | #4 CERRXIAN OBD-II male pigtail, 1.5 m | [Amazon.ca](https://www.amazon.ca/dp/B0CXHLG31Q) | 16.99 |
 | #5 EWAY dash-cam hardwire kit (5 V/2 A, all four fuse-tap sizes) | [Amazon.ca](https://www.amazon.ca/dp/B0D54C6CK3) | 19.99 |
-| **Total** | | **~77 + tax** |
+| #1 2×20 male header, 2.54 mm (for the Pi) | a local electronics shop (stock not checked) | ~2 (est.) |
+| #3 Hammond 1591XXESFLBK box, 193 × 113 × 58 mm | a local electronics shop (in store) | 12.50 |
+| M2.5 nylon standoffs + screws (~4–5 mm, Pi to box), rubber grommet | a local electronics shop (stock not checked) | ~5 (est.) |
+| **Total** | | **~101 + tax** |
 
-Prices checked 2026-10-24; the local shop and Amazon.ca prices change. Until the hardwire kit is installed, the Pi can run from a 12 V socket USB adapter, unplugged when the car is off (see "Testing setup" below).
+HAT price checked 2026-10-26, the rest 2026-10-24; the local shop and Amazon.ca prices change. Until the hardwire kit is installed, the Pi can run from a 12 V socket USB adapter, unplugged when the car is off (see "Testing setup" below).
 
 ## Already owned
 
@@ -49,15 +49,41 @@ Prices checked 2026-10-24; the local shop and Amazon.ca prices change. Until the
 | Part | Purpose | Notes |
 |---|---|---|
 | FORScan adapter + OBD Y-splitter (optional) | One-time discovery of Ford PID names/scaling by sniffing FORScan; shows which modules sit on MS-CAN | Only if community-list PIDs can't be confirmed. Adapter ~CA$40–85 (e.g. [OBDLink EX](https://www.obdlink.com/products/obdlink-ex/), US$60), Y-splitter ~CA$15. A phone with FORScan Lite can replace the laptop. |
-| Waveshare 2-CH Isolated CAN HAT (MCP2515 + SN65HVD230) | Upgrade: adds MS-CAN (TPMS, battery monitoring, cluster data) + isolation, TVS and ESD protection | CA$44.99, [Amazon.ca](https://www.amazon.ca/dp/B087RJ6XGG). Same driver and software as the RS485 HAT. Full-size HAT (65 × 56 mm), overhangs the Zero, so it needs a custom case. Both channels on SPI0 (interrupts likely GPIO 23/25, 16 MHz crystal: confirm on the board). The CAN FD version (CA$65.80, PiShop.ca) isn't needed: the car uses classic CAN. |
+| Waveshare RS485 CAN HAT (MCP2515 + SN65HVD230, single channel) | Not chosen (replaced by #2 on 2026-10-26): the cheaper HS-CAN-only option | CA$20, a local electronics shop or [PiShop.ca](https://www.pishop.ca/product/rs485-can-hat-for-raspberry-pi/). Zero-sized (65 × 30 mm), same driver and software. No isolation and no pass-through pins for I²C. Uses GPIO 4, 8–11, 14/15 and 25. The 2-CH CAN FD version (CA$65.80, PiShop.ca) isn't needed either: the car uses classic CAN. |
 | High-endurance microSD, 32–64 GB (e.g. SanDisk High Endurance, Samsung PRO Endurance) | Better tolerance of power loss in the car | ~15–25 CAD (est.). Out of scope for now: buy it only if the current card corrupts. The current card then becomes the spare/dev card. |
 | Hold-up module: Stubborn Balance Zero (AQEX) | Power for a clean shutdown | ~88 CAD (US$63), [Lectronz](https://lectronz.com/products/aqex-stubborn-balance-zero-ups-hat-rpi-zero-2-wh). Skipped for cost. Only add it if SD corruption shows up in practice. It's a second HAT, so it needs a deeper case. |
 
 ## Notes
 
-### Why single-channel HS-CAN
+### Why the 2-CH isolated HAT (decided 2026-10-26)
 
-The single-channel RS485 CAN HAT is Zero-sized and cheap. Dual-channel boards are full Pi size and cost over twice as much. On the 2017 Explorer the PCM (which also runs the 6F50 transmission) and ABS are on HS-CAN, so every channel in the logging plan is reachable there. MS-CAN carries body and comfort modules and isn't needed for engine and drivetrain health. It could add TPMS and battery-monitor data, but on these Fords some modules bridge both buses, so that data may be on HS-CAN too. Check before upgrading: a FORScan module list, or a Pi with the 2-CH HAT listening on MS-CAN, shows what's there.
+The plan was the single-channel RS485 CAN HAT (CA$20). The owner switched to the Waveshare 2-CH Isolated CAN HAT (CA$44.99) for these reasons:
+- **Pass-through pins:** it comes with a stacking header whose long pins stick out above the HAT, so the RTC and accelerometer wire on top. The RS485 HAT covers the header, which would mean wires under the Pi or an upside-down stacking header.
+- **Protection:** isolation, TVS and ESD protection suit a car's electrically noisy wiring.
+- **MS-CAN:** the second channel can listen on MS-CAN (OBD pins 3/11) later at no extra cost.
+
+The cost is about CA$25 more and a full-size HAT that overhangs the Zero. The Hammond box has room for it.
+
+On the 2017 Explorer the PCM (which also runs the 6F50 transmission) and ABS are on HS-CAN, so every channel in the logging plan is reachable on channel 0 alone. MS-CAN carries body and comfort modules. It could add TPMS and battery-monitor data, but on these Fords some modules bridge both buses, so that data may be on HS-CAN too. Listening on MS-CAN shows what's there.
+
+### Header stack and vibration
+
+```
+   I²C wires soldered to the pin tips   ← long pins above the HAT
+     ═══════════════  2-CH CAN HAT      ← stacking socket SOLDERED to the HAT (included)
+      [▓▓▓▓▓▓▓▓▓]
+        │ │ │ │                         ← plain 2×20 male header SOLDERED to the Pi (#1)
+   ━━━━━━━━━━━━━━━━━  Pi Zero 2 W       (held together by the HAT's brass standoffs)
+```
+
+- Every pin must be soldered into its holes. Unsoldered pins in plated holes (~1.0 mm holes, ~0.64 mm pins) only touch where they lean, and would cut in and out with vibration.
+- This stack keeps the Pi and HAT separable. A permanent sandwich (stacking socket under the Pi, HAT soldered onto the long pins) also works, but replacing either board would then mean desoldering 40 pins.
+- The 40-pin connection holds up to vibration as long as all four standoffs are screwed tight: they stop the boards rocking, which is what slowly works pins loose.
+- Single Dupont jumpers on the pin tips can loosen over months of engine vibration. From most to least robust:
+  1. Solder the I²C wires straight onto the tops of the long pins (or onto the module pins).
+  2. Use one multi-pin Dupont housing (e.g. 1×6 over pins 1–11) plus a dab of hot glue.
+  3. Single jumpers plus hot glue: fine for bench testing.
+- Mount the RTC and MPU boards to the box or a piece of perfboard so the wires don't carry their weight. Mount the MPU rigidly and note which way its axes point relative to the car.
 
 ### No hold-up module (decided 2026-10-24)
 
@@ -82,7 +108,7 @@ Budget: boot ~20–30 s, Wi-Fi ~5–15 s, rclone ~5 s, upload a few seconds (abo
 
 ### Testing setup (before the fuse tap)
 
-For first tests, power the Pi from a 12 V socket USB adapter (≥2.4 A port) with a micro-USB cable, and unplug it when the car is turned off. This defers part #5 and brings the first order down to about CA$55–60.
+For first tests, power the Pi from a 12 V socket USB adapter (≥2.4 A port) with a micro-USB cable, and unplug it when the car is turned off. This defers part #5 and brings the first order down to about CA$81.
 - Before the read-only root is set up, shut down from SSH (`sudo shutdown now`) before unplugging, to protect the SD card.
 - Some 12 V sockets stay live after the ignition is off. The logger stops polling when the CAN bus goes quiet, so a forgotten Pi won't keep modules awake, but it will still draw a little power.
 
@@ -113,7 +139,7 @@ Both boards came from the owner's Arduino parts. They share the Pi's I²C bus (I
 | Interrupt | pin 11 (GPIO17), optional | — | INT ("jolt detected") |
 | Not connected | | 32K, SQW | XDA, XCL (aux bus for a magnetometer) |
 
-Keep INT and the event button off the HAT's pins (GPIO 4, 8–11, 14/15, 25). The HAT covers the header, so use a tall stacking header or solder the I²C wires to the header pins from under the Pi.
+Keep INT and the event button off the 2-CH HAT's pins: GPIO 7–11 (SPI0, both chip selects) and its two interrupts (likely 23 and 25, confirm on the board). The HAT's stacking header leaves the long pins exposed on top, so the I²C wires attach there. See "Header stack and vibration" above.
 
 **Confirming the chips:** read the markings (DS3231SN/DS3231M; MPU-6050). Before the Pi header is on, both boards can be tested on an Arduino at 5 V (SDA→A4, SCL→A5) with an I²C scanner sketch. The MPU's WHO_AM_I register (0x75) reads 0x68 on a genuine MPU-6050. 0x70 means MPU-6500, 0x71 means MPU-9250, and other values usually mean a clone.
 
