@@ -41,7 +41,7 @@ Prices checked 2026-10-24; the local shop and Amazon.ca prices change. Until the
 | 64 GB microSDXC, UHS-I U3 | A standard card, not high-endurance. Fine for development and a first build: the logger writes under 1 MB per driving hour. |
 | Plastic case | Doesn't fit a HAT. Replaced by #3. |
 | Soldering iron | |
-| ZS-042 RTC module (DS3231 + AT24C32 EEPROM, CR2032 holder) | From the owner's Arduino parts (found 2026-10-26, chips not yet confirmed). Keeps the time with the ignition off. Remove the charging resistor first. See "Clock and accelerometer (I²C)" below. |
+| ZS-042 RTC module (DS3231 + AT24C32 EEPROM, CR2032 holder) | From the owner's Arduino parts (found 2026-10-26, chips not yet confirmed). Keeps the time with the ignition off. Remove the charging resistor first, then fit a CR2032 or BR2032 (not a LIR2032). See "Clock and accelerometer (I²C)" below. |
 | GY-521 accelerometer/gyro (MPU-6050) | From the owner's Arduino parts (found 2026-10-26, chip not yet confirmed). Detects jolts for the event log. Tie AD0 to 3.3 V so it doesn't clash with the RTC. See "Clock and accelerometer (I²C)" below. |
 
 ## Later / optional
@@ -92,7 +92,13 @@ Both boards came from the owner's Arduino parts. They share the Pi's I²C bus (I
 
 **Why an RTC:** the Pi has no clock of its own. Without power it boots with the last saved time and only corrects it over NTP. Cold starts in the regular parking spot never get Wi-Fi, so trips would carry wrong timestamps. With the read-only root, fake-hwclock can't even update its saved time. The DS3231 (±2 ppm, about a minute a year) runs on its coin cell while the ignition is off, so timestamps are right from the first log line.
 
-**ZS-042 charging-resistor fix:** the board trickle-charges the coin cell through a resistor (usually marked 201, 200 Ω) and a diode. A standard CR2032 isn't rechargeable and can swell or leak. Before fitting a CR2032, remove that resistor (or the diode), or else use a rechargeable LIR2032. Running at 3.3 V lowers the charge current but doesn't stop it. Replace the cell if it reads below about 2.8 V.
+**ZS-042 charging-resistor fix and coin cell:** the board feeds the coin cell from VCC through a resistor (usually marked 201, 200 Ω) and a diode.
+- A standard CR2032 isn't rechargeable and can swell or leak if charged. Remove that resistor (or the diode) before fitting a cell.
+- A rechargeable LIR2032 doesn't help here. The diode drops ~0.6–0.7 V, so at the Pi's 3.3 V the cell sees only ~2.6–2.7 V. A LIR2032 needs over 3.6 V to charge, so it would never charge and would slowly run down. Running the board from 5 V isn't an option, because its I²C pull-ups would then put 5 V on the Pi's pins.
+- Use a non-rechargeable 3 V cell. The DS3231 draws ~1–3 µA from it while the ignition is off, so the cell should last years.
+  - **CR2032** (~220 mAh): fine. Use a fresh name-brand cell.
+  - **BR2032** (~190 mAh, e.g. Panasonic): preferred if one is easy to find. It's rated about −30 to +85 °C, while a CR2032 is usually rated to 60–70 °C, and a parked car can get hot in summer.
+- Replace the cell if it reads below about 2.8 V.
 
 **Address clash:** the DS3231 and the MPU-6050 both default to **0x68**. Tie the MPU's **AD0 to 3.3 V** to move it to **0x69**. Expected `i2cdetect -y 1` result: `0x57` (RTC board EEPROM), `0x68` (DS3231), `0x69` (MPU-6050).
 

@@ -56,7 +56,7 @@ The GitHub repo stays **private** until the logger works, then goes public. Git 
   - The accelerometer is the owned MPU-6050 (GY-521) on I²C. Its INT pin can flag jolts on a free GPIO, for example GPIO17.
 - **Clock (added 2026-10-26):** a DS3231 RTC (the owned ZS-042 board) on I²C, so timestamps are right on cold starts with no Wi-Fi, such as in the regular parking spot. The Pi has no clock of its own, and with the read-only root, fake-hwclock can't save the time.
   - Setup: `dtoverlay=i2c-rtc,ds3231`, remove `fake-hwclock`, then run `hwclock -w` once the Pi has synced over NTP.
-  - Before fitting a CR2032, remove the ZS-042's charging resistor (or use a rechargeable LIR2032).
+  - Remove the ZS-042's charging resistor, then fit a non-rechargeable cell: a CR2032, or a heat-rated BR2032 (about −30 to +85 °C) if one is easy to find. Not a LIR2032: at 3.3 V, after the diode drop, the board can't charge it.
 - **I²C bus:** shared by both boards, on 3.3 V only. The DS3231 and the MPU-6050 both default to 0x68, so tie the MPU's AD0 to 3.3 V to move it to 0x69. Expected addresses: 0x57 (EEPROM), 0x68 (RTC), 0x69 (MPU). Keep INT and the button off the HAT's pins (GPIO 4, 8–11, 14/15, 25).
 - **Power (agreed 2026-10-24, kept simple):**
   - A dash-cam hardwire kit (≥2 A, micro-USB), tapped into a fuse that is live only in RUN, powers the Pi. OBD pin 16 is not used for power.
