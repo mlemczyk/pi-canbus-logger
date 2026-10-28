@@ -38,6 +38,7 @@ The GitHub repo went **public** on 2026-10-28 as a work in progress, with a note
     - A fuel-flow channel for economy: MAF (PID 0x10) or engine fuel rate (PID 0x5E, if the PCM supports it), with distance from speed.
     - Smoothness numbers in the per-trip summary: harsh acceleration and braking counts (from speed change and the MPU-6050's longitudinal axis), lateral-g peaks and counts from the MPU-6050 for turning, and idle time.
     - Normalize per km or per hour, and compare like with like (city vs. highway, cold vs. warm start), so a short winter trip doesn't look like bad driving.
+- [ ] (added 2026-10-28) **RTC health check.** At each boot, read the DS3231's oscillator-stop flag (OSF) and log it. When Wi-Fi connects, log the RTC's drift against NTP in the sync log. A set OSF flag or a big jump means the coin cell is dead and needs replacing.
 
 ## Design decisions (agreed 2026-10-24)
 
@@ -71,6 +72,7 @@ The GitHub repo went **public** on 2026-10-28 as a work in progress, with a note
 - **Clock (added 2026-10-26):** a DS3231 RTC (the owned ZS-042 board) on I²C, so timestamps are right on cold starts with no Wi-Fi, such as where the car is usually parked. The Pi has no clock of its own, and with the read-only root, fake-hwclock can't save the time.
   - Setup: `dtoverlay=i2c-rtc,ds3231`, remove `fake-hwclock`, then run `hwclock -w` once the Pi has synced over NTP.
   - Remove the ZS-042's charging resistor, then fit a non-rechargeable cell: a CR2032, or a heat-rated BR2032 (about −30 to +85 °C) if one is easy to find. Not a LIR2032: at 3.3 V, after the diode drop, the board can't charge it.
+  - No bigger rechargeable pack (decided 2026-10-28). The DS3231 draws only ~1–3 µA from its cell, about 10–25 mAh a year, so a ~220 mAh coin cell lasts several years even with heat. A LiPo would need a charger and protection board, can't be charged safely above ~45 °C, and is a fire risk in a hot parked car. Replace the coin cell only when the logger reports it's low or the clock lost time.
 - **I²C bus:** shared by both boards, on 3.3 V only. The DS3231 and the MPU-6050 both default to 0x68, so tie the MPU's AD0 to 3.3 V to move it to 0x69. Expected addresses: 0x57 (EEPROM), 0x68 (RTC), 0x69 (MPU). Keep INT and the button off the HAT's pins (GPIO 7–11, plus its interrupts, likely 23 and 25).
 - **Power (agreed 2026-10-24, kept simple):**
   - A dash-cam hardwire kit (≥2 A, micro-USB), tapped into a fuse that is live only in RUN, powers the Pi. OBD pin 16 is not used for power.
