@@ -22,3 +22,7 @@ The logger's computer: a Raspberry Pi Zero 2 W with a 64 GB microSD card and a s
 ## Safety
 
 The logger only reads data. It never writes to modules, runs routines or changes diagnostic sessions. Use it at your own risk: you're connecting hardware to your car's network.
+
+## License
+
+Public domain, under [the Unlicense](LICENSE). Use it however you like, no credit needed.
