@@ -1,5 +1,7 @@
 # pi-can-logger
 
+> **Work in progress.** I'm building this logger and documenting it as I go. It doesn't log anything yet. This README, the parts list and the setup notes will be updated as parts arrive and experiments are completed.
+
 An always-on Raspberry Pi logger for a car's OBD-II / CAN bus, built for long-term health and maintenance tracking rather than performance tuning.
 
 - Starts and stops with the ignition, and is safe for the car's battery.

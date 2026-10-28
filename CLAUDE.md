@@ -2,9 +2,9 @@
 
 An always-on Raspberry Pi data logger that plugs into a car's OBD-II port, logs engine and drivetrain health data on every trip, and syncs the logs over Wi-Fi when the car is parked at home. Built first for the owner's **2017 Ford Explorer** (3.5L Ti-VCT V6, AWD, 6F50 transmission), but meant to be published as a general project.
 
-This repo will be public. Keep personal details (VIN, addresses, email, Wi-Fi or cloud credentials) out of every committed file.
+This repo is public. Keep personal details (VIN, addresses, email, Wi-Fi or cloud credentials) out of every committed file.
 
-The GitHub repo stays **private** until the logger works, then goes public. Git history becomes public too, so the same rules apply to every commit now. Build photos:
+The GitHub repo went **public** on 2026-10-28 as a work in progress, with a note at the top of the README. Every commit and its history is public, so the same rules apply to every commit. Build photos:
 - Strip EXIF/GPS metadata before committing.
 - Resize to about 1600 px on the long side.
 - Check them for a VIN, licence plate, house or street, or a screen showing personal info.
@@ -22,7 +22,7 @@ The GitHub repo stays **private** until the logger works, then goes public. Git 
 - Then: solder the male header to the Pi and the HAT's stacking socket to the HAT, enable the `mcp2515` overlays (check the HAT's crystal and interrupt pins), and run a first `candump` in the car.
 - Hardware owned: Pi Zero 2 W (no header yet; the owner will solder a 2×20 male header), 64 GB microSD, an old plastic case (doesn't fit a HAT).
   - Also from the owner's Arduino parts (found 2026-10-26, chips not yet confirmed): a ZS-042 RTC (DS3231) and a GY-521 accelerometer/gyro (MPU-6050). Both go on I²C. Wiring and setup are in `docs/parts-list.md` → "Clock and accelerometer (I²C)".
-- GitHub: [mlemczyk/pi-canbus-logger](https://github.com/mlemczyk/pi-canbus-logger), **private** (created 2026-10-24). The local folder is named `pi-can-logger`.
+- GitHub: [mlemczyk/pi-canbus-logger](https://github.com/mlemczyk/pi-canbus-logger), created 2026-10-24, **public** since 2026-10-28. The local folder is named `pi-can-logger`.
 
 ## To-do before ordering parts
 
