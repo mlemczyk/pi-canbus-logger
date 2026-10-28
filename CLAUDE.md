@@ -29,6 +29,16 @@ The GitHub repo went **public** on 2026-10-28 as a work in progress, with a note
 - [x] (2026-10-24: boots, joins Wi-Fi, SSH works; the first boot is slow) Check that the Pi Zero 2 W works.
 - [x] Fuse size no longer blocks the order: the EWAY hardwire kit includes taps in all four sizes. Still find a fuse that's live only in RUN before installing.
 
+## To-do once telemetry works
+
+- [ ] (added 2026-10-28) **Driving score per driver.** A web page or a tab in the maintenance Google Sheet showing an aggregate "driving score". The owner says which days they drove, to tell the two household drivers apart, and Claude correlates those days with the trip summaries.
+  - Score parts: fuel economy, and smoothness of acceleration, braking and turning. More can be added later.
+  - Keep the day-to-driver list out of this public repo, for example in the Sheet.
+  - Needs, decided before the logger code is written, because raw trip files are usually not kept:
+    - A fuel-flow channel for economy: MAF (PID 0x10) or engine fuel rate (PID 0x5E, if the PCM supports it), with distance from speed.
+    - Smoothness numbers in the per-trip summary: harsh acceleration and braking counts (from speed change and the MPU-6050's longitudinal axis), lateral-g peaks and counts from the MPU-6050 for turning, and idle time.
+    - Normalize per km or per hour, and compare like with like (city vs. highway, cold vs. warm start), so a short winter trip doesn't look like bad driving.
+
 ## Design decisions (agreed 2026-10-24)
 
 - **Connection:** a CAN HAT on the Pi, wired to the OBD-II port: the Waveshare 2-CH Isolated CAN HAT (2× MCP2515, isolated, TVS/ESD protection).
