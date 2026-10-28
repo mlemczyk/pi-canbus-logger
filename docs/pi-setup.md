@@ -52,7 +52,7 @@ The Pi was on a USB power bank, carried through the car's usual parking spots. E
 
 | Spot | Readings | Average | Best / worst | Router ping fails |
 |---|---|---|---|---|
-| Regular parking spot, under the driver's seat | 146 | **no link** | — | all |
+| Usual parking spot, under the driver's seat | 146 | **no link** | — | all |
 | Out front, outside the car (reference) | 8+ | −67.4 dBm | −63 / −71 | 0 |
 | Out front, dashboard | 71 | −71.1 dBm | −67 / −75 | 3 single drops |
 | Out front, under the driver's seat | 35 | −74.9 dBm | −73 / −78 | 0 |
@@ -62,8 +62,8 @@ The Pi was on a USB power bank, carried through the car's usual parking spots. E
 **Conclusions:**
 - **Mount under the driver's seat.** It's mid-pack for signal, closest to the OBD port, hidden and shaded. The dashboard is only ~4 dB better.
 - The car body costs ~7–8 dB; the rest of the loss is distance and the house's walls.
-- **Syncs happen only when parked out front.** The regular parking spot has no Wi-Fi.
-- After driving up from the regular parking spot, the Pi rejoined Wi-Fi ~20 s after parking out front.
+- **Syncs happen only when parked out front.** The car's usual parking spot has no Wi-Fi.
+- After driving over from the usual parking spot, the Pi rejoined Wi-Fi ~20 s after parking out front.
 - **If syncs prove unreliable:** a Wi-Fi extender at a street-facing window, a USB Wi-Fi adapter on an extension cable with its antenna up near the windshield, or the phone hotspot as a second network.
 
 The survey service was removed after the test. The script stays at `/opt/canlogger/bin/` for re-runs.
@@ -82,7 +82,7 @@ The CSV stays on the Pi.
 **Procedure:**
 1. Boot the Pi indoors so its clock syncs.
 2. Without unplugging it, move it onto a USB power bank and carry it to the car. The Pi has no clock battery, so if it boots out of Wi-Fi range its timestamps are wrong; the uptime column still gives relative times.
-3. Leave it about 1 minute in each candidate spot, in the regular parking spot and parked out front. Note the clock time at each move.
+3. Leave it about 1 minute in each candidate spot, in the usual parking spot and parked out front. Note the clock time at each move.
 
 Remove it when done:
 ```

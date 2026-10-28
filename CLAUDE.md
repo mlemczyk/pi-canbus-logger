@@ -58,7 +58,7 @@ The GitHub repo went **public** on 2026-10-28 as a work in progress, with a note
     - fan duty, if available
 - **Event button:** a GPIO button, optionally with an accelerometer, to timestamp intermittent events (for example a driveline "klunk") for later correlation.
   - The accelerometer is the owned MPU-6050 (GY-521) on I²C. Its INT pin can flag jolts on a free GPIO, for example GPIO17.
-- **Clock (added 2026-10-26):** a DS3231 RTC (the owned ZS-042 board) on I²C, so timestamps are right on cold starts with no Wi-Fi, such as in the regular parking spot. The Pi has no clock of its own, and with the read-only root, fake-hwclock can't save the time.
+- **Clock (added 2026-10-26):** a DS3231 RTC (the owned ZS-042 board) on I²C, so timestamps are right on cold starts with no Wi-Fi, such as where the car is usually parked. The Pi has no clock of its own, and with the read-only root, fake-hwclock can't save the time.
   - Setup: `dtoverlay=i2c-rtc,ds3231`, remove `fake-hwclock`, then run `hwclock -w` once the Pi has synced over NTP.
   - Remove the ZS-042's charging resistor, then fit a non-rechargeable cell: a CR2032, or a heat-rated BR2032 (about −30 to +85 °C) if one is easy to find. Not a LIR2032: at 3.3 V, after the diode drop, the board can't charge it.
 - **I²C bus:** shared by both boards, on 3.3 V only. The DS3231 and the MPU-6050 both default to 0x68, so tie the MPU's AD0 to 3.3 V to move it to 0x69. Expected addresses: 0x57 (EEPROM), 0x68 (RTC), 0x69 (MPU). Keep INT and the button off the HAT's pins (GPIO 7–11, plus its interrupts, likely 23 and 25).
@@ -68,8 +68,8 @@ The GitHub repo went **public** on 2026-10-28 as a work in progress, with a note
   - No ignition-sense optocoupler and no supercap hold-up module, to keep the project cheap. Trip files are flushed every few seconds, and unfinished trips are closed and summarized at the next boot.
 - **Storage:** a read-only root filesystem (overlayfs), with logs on a separate partition or USB stick.
 - **Sync:** opportunistic. Whenever home Wi-Fi is in range, `rclone` uploads unsynced CSVs to a Google Drive folder in the background while logging continues. Files stay local until the upload is confirmed. Data arriving days late is fine, because the goal is long-term trends, not daily stats. Claude reads the files from Drive for analysis. An optional Pi hotspot with a small web page allows downloads when away from home.
-  - **Where:** only on the street out front. The regular parking spot has no Wi-Fi (survey 2026-10-24, see `docs/pi-setup.md`). Under the driver's seat out front gets ~−75 dBm with no dropouts.
-  - **When:** the car stops out front about 3 times a week. The Pi is already running from the drive, so it only needs ~20 s to rejoin Wi-Fi plus a few seconds to upload: **~30 s with the ignition on after stopping**. A cold start out front needs ~1 min, because boot adds ~35 s. Passing in and out of the regular parking spot is too brief.
+  - **Where:** only on the street out front. The car's usual parking spot has no Wi-Fi (survey 2026-10-24, see `docs/pi-setup.md`). Under the driver's seat out front gets ~−75 dBm with no dropouts.
+  - **When:** the car stops out front about 3 times a week. The Pi is already running from the drive, so it only needs ~20 s to rejoin Wi-Fi plus a few seconds to upload: **~30 s with the ignition on after stopping**. A cold start out front needs ~1 min, because boot adds ~35 s. Passing the usual parking spot is too brief.
   - **Logger requirements:**
     - Start a sync the moment Wi-Fi connects; don't wait for the trip to end.
     - Uploads cut off by the ignition must be safe to retry. Drive discards partial uploads, and local files stay until confirmed.
